@@ -394,12 +394,13 @@ create_lock_file (char *lfname, char *lock_info_str, bool force)
       USE_SAFE_ALLOCA;
       char *nonce = SAFE_ALLOCA (lfdirlen + sizeof nonce_base);
       int fd;
+      int errcode;
       memcpy (nonce, lfname, lfdirlen);
       strcpy (nonce + lfdirlen, nonce_base);
 
-      fd = rust_make_temp (nonce, O_BINARY | O_CLOEXEC, NULL);
+      fd = rust_make_temp (nonce, O_BINARY | O_CLOEXEC, &errcode);
       if (fd < 0)
-	err = errno;
+	err = errcode;
       else
 	{
 	  ptrdiff_t lock_info_len;
