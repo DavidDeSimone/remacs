@@ -1,6 +1,6 @@
 use remacs_macros::lisp_fn;
 use lisp::{LispObject, ExternalPtr};
-use remacs_sys::{Lisp_Hash_Table, PseudovecType, Fcopy_sequence};
+use remacs_sys::{Lisp_Hash_Table, PseudovecType, Fcopy_sequence, Fgarbage_collect};
 use std::ptr;
 
 pub type LispHashTableRef = ExternalPtr<Lisp_Hash_Table>;
@@ -67,6 +67,10 @@ impl LispHashTableRef {
 fn copy_hash_table(htable: LispObject) -> LispObject {
     let mut table = htable.as_hash_table_or_error();
     let mut new_table = LispHashTableRef::allocate();
+    let ptr = new_table.as_ptr();
+
+    unsafe { Fgarbage_collect(); };
+    
     unsafe { new_table.copy(table) };
     assert!(new_table.as_ptr() != table.as_ptr());
 
