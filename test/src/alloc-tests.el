@@ -51,3 +51,6 @@
     (should-not (eq x y))
     (dotimes (i 4)
       (should (eql (aref x i) (aref y i))))))
+
+(ert-deftest rust-struct-check ()
+  (should (eq (rust-validate-sizes) t)))

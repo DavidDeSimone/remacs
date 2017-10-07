@@ -3739,6 +3739,59 @@ extract_data_from_object (Lisp_Object spec,
   return SSDATA (object);
 }
 
+extern size_t sizeof_lisp_subr (void);
+extern size_t sizeof_lisp_string (void);
+extern size_t sizeof_lisp_symbol (void);
+extern size_t sizeof_lisp_misc_any (void);
+extern size_t sizeof_lisp_marker (void);
+extern size_t sizeof_lisp_overlay (void);
+extern size_t sizeof_lisp_window (void);
+extern size_t sizeof_lisp_buffer (void);
+extern size_t sizeof_lisp_hash_table (void);
+
+extern size_t offsetof_symbol_name (void);
+extern size_t offsetof_symbol_function (void);
+extern size_t offsetof_marker_buffer (void);
+extern size_t offsetof_overlay_next (void);
+extern size_t offsetof_window_vscroll (void);
+extern size_t offsetof_buffer_overlays_before (void);
+
+#define CHECK_SIZEOF(fn, ty)                                   \
+  if (sizeof (struct ty) != fn())                              \
+    {                                                          \
+      error (#ty"'s size differs from it's Rust equivalent."); \
+    }                                                          \
+
+#define CHECK_OFFSETOF(fn, name, field)	                                        \
+  if (offsetof (struct name, field) != fn())                                    \
+    {                                                                           \
+      error ("offsetof ("#name","#field") differs from it's Rust equivalent."); \
+    }                                                                           \
+
+DEFUN ("rust-validate-sizes", Frust_validate_sizes,
+       Srust_validate_sizes, 0, 0, 0,
+       doc: /* Validates that all Rust data structures 
+are equivalent to their C counterparts. 
+Errors if any differences are found. */)
+  (void)
+{
+  CHECK_SIZEOF (sizeof_lisp_subr, Lisp_Subr);
+  CHECK_SIZEOF (sizeof_lisp_string, Lisp_String);
+  CHECK_SIZEOF (sizeof_lisp_symbol, Lisp_Symbol);
+  CHECK_SIZEOF (sizeof_lisp_misc_any, Lisp_Misc_Any);
+  CHECK_SIZEOF (sizeof_lisp_marker, Lisp_Marker);
+  CHECK_SIZEOF (sizeof_lisp_overlay, Lisp_Overlay);
+  CHECK_SIZEOF (sizeof_lisp_hash_table, Lisp_Hash_Table);
+  
+  CHECK_OFFSETOF (offsetof_symbol_name, Lisp_Symbol, name);
+  CHECK_OFFSETOF (offsetof_symbol_function, Lisp_Symbol, function);
+  CHECK_OFFSETOF (offsetof_marker_buffer, Lisp_Marker, buffer);
+  CHECK_OFFSETOF (offsetof_overlay_next, Lisp_Overlay, next);
+  
+  return Qt;
+}
+
+
 void
 syms_of_fns (void)
 {
@@ -3882,4 +3935,5 @@ this variable.  */);
   defsubr (&Sbase64_decode_region);
   defsubr (&Ssecure_hash_algorithms);
   defsubr (&Slocale_info);
+  defsubr (&Srust_validate_sizes);
 }

@@ -17,10 +17,10 @@
 extern crate libc;
 
 pub mod libm;
+pub mod size_align;
 
 use libc::{c_char, c_uchar, c_short, c_int, c_double, c_float, c_void, ptrdiff_t, size_t, off_t,
            time_t, timespec};
-
 
 include!(concat!(env!("OUT_DIR"), "/definitions.rs"));
 include!(concat!(env!("OUT_DIR"), "/globals.rs"));
